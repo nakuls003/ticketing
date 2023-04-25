@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: nakuls003/ticketing-client
+          image: nakuls003/client
 ---
 apiVersion: v1
 kind: Service
