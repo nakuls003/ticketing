@@ -1,0 +1,25 @@
+name: deploy-client
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'client/**'
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cd client && docker build -t nakuls003/client .
+      - run: docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - run: docker push nakuls003/client
+      - uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - run: doctl kubernetes cluster kubeconfig save ba846272-1de6-4794-8819-6e9612ee07da
+      - run: kubectl rollout restart deployment client-depl
